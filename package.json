@@ -17,6 +17,7 @@
     "@trpc/next": "^10.37.1",
     "@trpc/react-query": "^10.37.1",
     "@trpc/server": "^10.37.1",
+    "dayjs": "^1.11.10",
     "drizzle-orm": "^0.28.5",
     "next": "^13.4.19",
     "react": "18.2.0",
