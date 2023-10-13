@@ -2,6 +2,7 @@ import Head from "next/head";
 import Image from "next/image";
 import dayjs from "dayjs";
 import "dayjs/locale/es-mx";
+import { RouterOutputs, api } from "~/utils/api";
 
 dayjs.locale("es-mx");
 
@@ -19,32 +20,29 @@ const selectStoreImage = (store: string) => {
       return "/whimsicott.png";
   }
 };
-interface eventCardProps {
-  image?: string;
-  title: string;
-  date: string;
-  organizer: string;
-  location: string;
-  description: string;
-  fbLink: string;
-  price: number;
-  hour: string;
-}
-const eventCard = (props: eventCardProps) => {
+
+type events = RouterOutputs["events"]["getFutureEvents"][number];
+const eventCard = (props: events) => {
   return (
     <div className="items-center rounded-lg bg-gray-50 shadow dark:border-gray-700 dark:bg-gray-800 sm:flex">
-      <a target="_blank" rel="noopener noreferrer" href={props.fbLink}>
-        <Image
-          className="h-56 w-full rounded-lg object-cover sm:max-h-56 sm:w-56 sm:rounded-none sm:rounded-l-lg"
-          src={props.image ? props.image : selectStoreImage(props.organizer)}
-          alt={`Logo ${props.organizer}`}
-          width={224}
-          height={224}
-        />
-      </a>
+      <div className="shrink-0">
+        <a
+          target="_blank"
+          rel="noopener noreferrer"
+          href={props.fbLink ? props.fbLink : ""}
+        >
+          <Image
+            className="h-56 w-full  rounded-lg object-contain sm:max-h-56 sm:w-56 sm:rounded-none sm:rounded-l-lg"
+            src={selectStoreImage(props.organizer!)}
+            alt={`Logo ${props.organizer}`}
+            width={224}
+            height={224}
+          />
+        </a>
+      </div>
       <div className="p-5">
         <h3 className="text-xl font-bold tracking-tight text-gray-900 dark:text-white">
-          {props.title}
+          {props.name}
         </h3>
         <span className="text-gray-500 dark:text-gray-400">
           {props.organizer}
@@ -82,7 +80,7 @@ const eventCard = (props: eventCardProps) => {
               <path d="M0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm14-7.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1Zm0 4a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1Zm-5-4a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1Zm0 4a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1Zm-5-4a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1Zm0 4a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1ZM20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4Z" />
             </svg>
             <span className="text-base">
-              {dayjs(props.date).format("D [de] MMMM")}
+              {dayjs(props.startDate).format("D [de] MMMM")}
             </span>
           </div>
           <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
@@ -96,14 +94,14 @@ const eventCard = (props: eventCardProps) => {
               <path d="M10 0a10 10 0 1 0 10 10A10.011 10.011 0 0 0 10 0Zm3.982 13.982a1 1 0 0 1-1.414 0l-3.274-3.274A1.012 1.012 0 0 1 9 10V6a1 1 0 0 1 2 0v3.586l2.982 2.982a1 1 0 0 1 0 1.414Z" />
             </svg>
             <span className="text-base">
-              {dayjs(props.date).format("h:mm A")}
+              {dayjs(props.startDate).format("h:mm A")}
             </span>
           </div>
         </div>
         <ul className="flex items-center space-x-2 sm:mt-0">
           <li>
             <a
-              href={props.fbLink}
+              href={props.fbLink ? props.fbLink : ""}
               target="_blank"
               rel="noopener noreferrer"
               className="text-gray-500 hover:text-gray-900 dark:hover:text-white"
@@ -124,7 +122,7 @@ const eventCard = (props: eventCardProps) => {
           </li>
           <li>
             <a
-              href={props.location}
+              href={props.location!}
               target="_blank"
               rel="noopener noreferrer"
               className="text-gray-500 hover:text-gray-900 dark:hover:text-white"
@@ -147,6 +145,8 @@ const eventCard = (props: eventCardProps) => {
 };
 
 export default function Home() {
+  const { data: eventsData } = api.events.getFutureEvents.useQuery({});
+
   return (
     <>
       <Head>
@@ -161,230 +161,14 @@ export default function Home() {
               Eventos TCG Pokémon Chihuahua
             </h2>
             <p className="font-light text-gray-500 dark:text-gray-400 sm:text-xl lg:mb-16">
-              Estos son todos los eventos para este més de noviembre
+              Estos son todos los eventos para este més de{" "}
+              {dayjs().format("MMMM")}
             </p>
           </div>
           <div className="mb-6 grid gap-8 lg:mb-16">
-            {/* Eden */}
-            {eventCard({
-              title: "Liga Pokémon",
-              description: "¡Torneito en Eden #10!",
-              date: "2023-10-13T19:00:00",
-              hour: "7:00 PM",
-              location: "https://maps.app.goo.gl/YW5HBAa8qF16eFJf8",
-              fbLink: "https://www.facebook.com/edenanime?mibextid=ZbWKwL",
-              organizer: "Eden #10",
-              price: 70,
+            {eventsData?.map((event) => {
+              return eventCard(event);
             })}
-            {/* Duelzone */}
-            <div className="items-center rounded-lg bg-gray-50 shadow dark:border-gray-700 dark:bg-gray-800 sm:flex">
-              <a className="shrink-0" href="#">
-                <img
-                  className="w-full rounded-lg sm:h-full sm:w-64 sm:rounded-none sm:rounded-l-lg"
-                  src="/images/friki-plaza.png"
-                  alt="Logo Friki Plaza"
-                />
-              </a>
-              <div className="p-5">
-                <h3 className="text-xl font-bold tracking-tight text-gray-900 dark:text-white">
-                  <a href="#">Liga Pokémon</a>
-                </h3>
-                <span className="text-gray-500 dark:text-gray-400">
-                  Duel Zone
-                </span>
-                <div className="-m-1 flex items-center text-gray-500 dark:text-gray-400">
-                  <svg
-                    className="h-4 w-4"
-                    aria-hidden="true"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 11 20"
-                  >
-                    <path
-                      stroke="currentColor"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M1.75 15.363a4.954 4.954 0 0 0 2.638 1.574c2.345.572 4.653-.434 5.155-2.247.502-1.813-1.313-3.79-3.657-4.364-2.344-.574-4.16-2.551-3.658-4.364.502-1.813 2.81-2.818 5.155-2.246A4.97 4.97 0 0 1 10 5.264M6 17.097v1.82m0-17.5v2.138"
-                    />
-                  </svg>
-                  <span>Gratis</span>
-                </div>
-                <p className="mb-2 mt-3 font-light text-gray-500 dark:text-gray-400">
-                  ¡Ven a jugar, los torneos en la friki plaza estan de vuelta!
-                </p>
-                <div className="mb-4 flex gap-4">
-                  <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
-                    <svg
-                      className="h-4 w-4"
-                      aria-hidden="true"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path d="M0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm14-7.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1Zm0 4a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1Zm-5-4a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1Zm0 4a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1Zm-5-4a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1Zm0 4a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1ZM20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4Z" />
-                    </svg>
-                    <span className="text-base">14 de octubre</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
-                    <svg
-                      className="h-4 w-4"
-                      aria-hidden="true"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path d="M10 0a10 10 0 1 0 10 10A10.011 10.011 0 0 0 10 0Zm3.982 13.982a1 1 0 0 1-1.414 0l-3.274-3.274A1.012 1.012 0 0 1 9 10V6a1 1 0 0 1 2 0v3.586l2.982 2.982a1 1 0 0 1 0 1.414Z" />
-                    </svg>
-                    <span className="text-base">2:00 PM</span>
-                  </div>
-                </div>
-                <ul className="flex items-center space-x-4 sm:mt-0">
-                  <li>
-                    <a
-                      href="#"
-                      className="text-gray-500 hover:text-gray-900 dark:hover:text-white"
-                    >
-                      <svg
-                        className="h-6 w-6"
-                        fill="currentColor"
-                        viewBox="0 0 24 24"
-                        aria-hidden="true"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                    </a>
-                  </li>
-                  <li>
-                    <a
-                      href="https://maps.app.goo.gl/Xb347nn2gysQXNy98"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-gray-500 hover:text-gray-900 dark:hover:text-white"
-                    >
-                      <svg
-                        className="h-5 w-5"
-                        aria-hidden="true"
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="currentColor"
-                        viewBox="0 0 16 20"
-                      >
-                        <path d="M8 0a7.992 7.992 0 0 0-6.583 12.535 1 1 0 0 0 .12.183l.12.146c.112.145.227.285.326.4l5.245 6.374a1 1 0 0 0 1.545-.003l5.092-6.205c.206-.222.4-.455.578-.7l.127-.155a.934.934 0 0 0 .122-.192A8.001 8.001 0 0 0 8 0Zm0 11a3 3 0 1 1 0-6 3 3 0 0 1 0 6Z" />
-                      </svg>
-                    </a>
-                  </li>
-                </ul>
-              </div>
-            </div>
-            {/* Hobby */}
-            <div className="items-center rounded-lg bg-gray-50 shadow dark:border-gray-700 dark:bg-gray-800 sm:flex">
-              <a className="shrink-0" href="#">
-                <img
-                  className="h-64 w-full rounded-lg sm:h-auto sm:w-64 sm:rounded-none sm:rounded-l-lg"
-                  src="/images/hobby-guild.png"
-                  alt="Logo Hobby Guild"
-                />
-              </a>
-              <div className="p-5">
-                <h3 className="text-xl font-bold tracking-tight text-gray-900 dark:text-white">
-                  <a href="#">League Challenge</a>
-                </h3>
-                <span className="text-gray-500 dark:text-gray-400">
-                  Hobby Guild
-                </span>
-                <div className="-m-1 flex items-center text-gray-500 dark:text-gray-400">
-                  <svg
-                    className="h-4 w-4"
-                    aria-hidden="true"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 11 20"
-                  >
-                    <path
-                      stroke="currentColor"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M1.75 15.363a4.954 4.954 0 0 0 2.638 1.574c2.345.572 4.653-.434 5.155-2.247.502-1.813-1.313-3.79-3.657-4.364-2.344-.574-4.16-2.551-3.658-4.364.502-1.813 2.81-2.818 5.155-2.246A4.97 4.97 0 0 1 10 5.264M6 17.097v1.82m0-17.5v2.138"
-                    />
-                  </svg>
-                  <span>250</span>
-                </div>
-                <p className="mb-2 mt-3 font-light text-gray-500 dark:text-gray-400">
-                  ¡Si traes alguien que no haya participado en nuestros eventos
-                  a jugar recibe una sorpresa!
-                </p>
-                <div className="mb-4 flex gap-4">
-                  <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
-                    <svg
-                      className="h-4 w-4"
-                      aria-hidden="true"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path d="M0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm14-7.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1Zm0 4a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1Zm-5-4a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1Zm0 4a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1Zm-5-4a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1Zm0 4a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1ZM20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4Z" />
-                    </svg>
-                    <span className="text-base">15 de octubre</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
-                    <svg
-                      className="h-4 w-4"
-                      aria-hidden="true"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path d="M10 0a10 10 0 1 0 10 10A10.011 10.011 0 0 0 10 0Zm3.982 13.982a1 1 0 0 1-1.414 0l-3.274-3.274A1.012 1.012 0 0 1 9 10V6a1 1 0 0 1 2 0v3.586l2.982 2.982a1 1 0 0 1 0 1.414Z" />
-                    </svg>
-                    <span className="text-base">1:00 PM</span>
-                  </div>
-                </div>
-                <ul className="flex items-center space-x-4 sm:mt-0">
-                  <li>
-                    <a
-                      href="#"
-                      className="text-gray-500 hover:text-gray-900 dark:hover:text-white"
-                    >
-                      <svg
-                        className="h-6 w-6"
-                        fill="currentColor"
-                        viewBox="0 0 24 24"
-                        aria-hidden="true"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                    </a>
-                  </li>
-                  <li>
-                    <a
-                      href="https://maps.app.goo.gl/FcAhgyAyThJeJGvS9"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-gray-500 hover:text-gray-900 dark:hover:text-white"
-                    >
-                      <svg
-                        className="h-5 w-5"
-                        aria-hidden="true"
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="currentColor"
-                        viewBox="0 0 16 20"
-                      >
-                        <path d="M8 0a7.992 7.992 0 0 0-6.583 12.535 1 1 0 0 0 .12.183l.12.146c.112.145.227.285.326.4l5.245 6.374a1 1 0 0 0 1.545-.003l5.092-6.205c.206-.222.4-.455.578-.7l.127-.155a.934.934 0 0 0 .122-.192A8.001 8.001 0 0 0 8 0Zm0 11a3 3 0 1 1 0-6 3 3 0 0 1 0 6Z" />
-                      </svg>
-                    </a>
-                  </li>
-                </ul>
-              </div>
-            </div>
 
             {/* <div className="items-center rounded-lg bg-gray-50 shadow dark:border-gray-700 dark:bg-gray-800 sm:flex">
               <a href="#">
