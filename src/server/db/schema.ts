@@ -21,7 +21,7 @@ import {
  */
 export const mysqlTable = mysqlTableCreator((name) => `tcgurt-app_${name}`);
 
-export const event = mysqlTable("event", {
+export const events = mysqlTable("events", {
   id: bigint("id", { mode: "number" }).primaryKey().autoincrement(),
   name: varchar("name", { length: 100 }),
   description: varchar("description", { length: 256 }),
