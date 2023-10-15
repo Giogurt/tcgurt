@@ -2,7 +2,8 @@ import Head from "next/head";
 import Image from "next/image";
 import dayjs from "dayjs";
 import "dayjs/locale/es-mx";
-import { RouterOutputs, api } from "~/utils/api";
+import { api } from "~/utils/api";
+import type { RouterOutputs } from "~/utils/api";
 import { SignInButton, UserButton, useUser } from "@clerk/nextjs";
 import { CreateEventModal } from "~/components/createEventModal";
 import { useToast } from "~/components/ui/use-toast";
@@ -12,7 +13,8 @@ dayjs.locale("es-mx");
 
 const Navbar = () => {
   const { toast } = useToast();
-  const user = useUser();
+  const { user } = useUser();
+  console.log(user);
 
   const triggerToast = (success: boolean) => {
     if (!success) {
@@ -44,11 +46,11 @@ const Navbar = () => {
           </span>
         </a>
         <div className="flex gap-x-4">
-          {!!user && !!user.user?.publicMetadata.isOrganizer && (
+          {!!user && !!user?.publicMetadata.isOrganizer && (
             <CreateEventModal
               {...{
                 triggerToast: triggerToast,
-                userLocation: user.user.unsafeMetadata.location as string,
+                userLocation: user.unsafeMetadata.location as string,
               }}
             />
           )}
