@@ -1,7 +1,13 @@
+import { clerkClient } from "@clerk/nextjs";
 import { asc, gte } from "drizzle-orm";
 import { z } from "zod";
-import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
+import {
+  createTRPCRouter,
+  privateProcedure,
+  publicProcedure,
+} from "~/server/api/trpc";
 import { events } from "~/server/db/schema";
+import { UserUnsafeMetadata } from "~/server/api/auth";
 
 export const eventsRouter = createTRPCRouter({
   getFutureEvents: publicProcedure.query(({ ctx }) => {
@@ -10,19 +16,25 @@ export const eventsRouter = createTRPCRouter({
       orderBy: (events) => [asc(events.startDate)],
     });
   }),
-  create: publicProcedure
+  create: privateProcedure
     .input(
       z.object({
         name: z.string(),
         description: z.string(),
-        organizer: z.string(),
-        location: z.string().url(),
+        organizer: z.string().optional(),
+        location: z.string().url().optional(),
         startDate: z.date(),
         fbLink: z.string().url().optional(),
         price: z.number().nonnegative(),
       }),
     )
-    .mutation(({ ctx, input }) => {
-      return ctx.db.insert(events).values(input);
+    .mutation(async ({ ctx, input }) => {
+      const user = await clerkClient.users.getUser(ctx.userId);
+
+      const userMetadata = user.unsafeMetadata as UserUnsafeMetadata;
+
+      const eventFields = { ...input, ...userMetadata };
+
+      return ctx.db.insert(events).values(eventFields);
     }),
 });

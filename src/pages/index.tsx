@@ -4,121 +4,14 @@ import dayjs from "dayjs";
 import "dayjs/locale/es-mx";
 import { RouterOutputs, api } from "~/utils/api";
 import { SignInButton, UserButton, useUser } from "@clerk/nextjs";
+import { CreateEventModal } from "~/components/createEventModal";
 
 dayjs.locale("es-mx");
-
-// const CreateEventModal = () => {
-//   return (
-//     <div
-//       tabIndex={-1}
-//       aria-hidden="true"
-//       className="fixed left-0 right-0 top-0 z-50 hidden h-[calc(100%-1rem)] max-h-full w-full overflow-y-auto overflow-x-hidden p-4 md:inset-0"
-//     >
-//       <div className="relative max-h-full w-full max-w-md">
-//         {/* <!-- Modal content --> */}
-//         <div className="relative rounded-lg bg-white shadow dark:bg-gray-700">
-//           <button
-//             type="button"
-//             className="absolute right-2.5 top-3 ml-auto inline-flex h-8 w-8 items-center justify-center rounded-lg bg-transparent text-sm text-gray-400 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-gray-600 dark:hover:text-white"
-//             data-modal-hide="authentication-modal"
-//           >
-//             <svg
-//               className="h-3 w-3"
-//               aria-hidden="true"
-//               xmlns="http://www.w3.org/2000/svg"
-//               fill="none"
-//               viewBox="0 0 14 14"
-//             >
-//               <path
-//                 stroke="currentColor"
-//                 stroke-linecap="round"
-//                 stroke-linejoin="round"
-//                 stroke-width="2"
-//                 d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
-//               />
-//             </svg>
-//             <span className="sr-only">Close modal</span>
-//           </button>
-//           <div className="px-6 py-6 lg:px-8">
-//             <h3 className="mb-4 text-xl font-medium text-gray-900 dark:text-white">
-//               Sign in to our platform
-//             </h3>
-//             <form className="space-y-6" action="#">
-//               <div>
-//                 <label className="mb-2 block text-sm font-medium text-gray-900 dark:text-white">
-//                   Your email
-//                 </label>
-//                 <input
-//                   type="email"
-//                   name="email"
-//                   id="email"
-//                   className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-500 dark:bg-gray-600 dark:text-white dark:placeholder-gray-400"
-//                   placeholder="name@company.com"
-//                   required
-//                 />
-//               </div>
-//               <div>
-//                 <label className="mb-2 block text-sm font-medium text-gray-900 dark:text-white">
-//                   Your password
-//                 </label>
-//                 <input
-//                   type="password"
-//                   name="password"
-//                   id="password"
-//                   placeholder="••••••••"
-//                   className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-500 dark:bg-gray-600 dark:text-white dark:placeholder-gray-400"
-//                   required
-//                 />
-//               </div>
-//               <div className="flex justify-between">
-//                 <div className="flex items-start">
-//                   <div className="flex h-5 items-center">
-//                     <input
-//                       id="remember"
-//                       type="checkbox"
-//                       value=""
-//                       className="focus:ring-3 h-4 w-4 rounded border border-gray-300 bg-gray-50 focus:ring-blue-300 dark:border-gray-500 dark:bg-gray-600 dark:ring-offset-gray-800 dark:focus:ring-blue-600 dark:focus:ring-offset-gray-800"
-//                       required
-//                     />
-//                   </div>
-//                   <label className="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">
-//                     Remember me
-//                   </label>
-//                 </div>
-//                 <a
-//                   href="#"
-//                   className="text-sm text-blue-700 hover:underline dark:text-blue-500"
-//                 >
-//                   Lost Password?
-//                 </a>
-//               </div>
-//               <button
-//                 type="submit"
-//                 className="w-full rounded-lg bg-blue-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-//               >
-//                 Login to your account
-//               </button>
-//               <div className="text-sm font-medium text-gray-500 dark:text-gray-300">
-//                 Not registered?{" "}
-//                 <a
-//                   href="#"
-//                   className="text-blue-700 hover:underline dark:text-blue-500"
-//                 >
-//                   Create account
-//                 </a>
-//               </div>
-//             </form>
-//           </div>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// };
 
 const Navbar = () => {
   const user = useUser();
   return (
-    <nav className="fixed left-0 top-0 z-20 w-full border-b border-gray-200 bg-white dark:border-gray-600 dark:bg-gray-900">
+    <nav className="fixed left-0 top-0 z-20 w-full border-b border-slate-200 bg-white dark:border-slate-600 dark:bg-slate-900">
       <div className="mx-auto flex max-w-screen-xl flex-wrap items-center justify-between p-4">
         <a href="https://flowbite.com/" className="flex items-center">
           <Image
@@ -135,13 +28,7 @@ const Navbar = () => {
         <div className="flex gap-x-4">
           {!!user && (
             <>
-              <button
-                type="button"
-                // onClick={}
-                className="rounded-lg bg-green-700 px-4 py-2 text-center text-sm font-medium text-white hover:bg-green-800 focus:outline-none focus:ring-4 focus:ring-green-300 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
-              >
-                Crear evento
-              </button>
+              <CreateEventModal />
               <UserButton />
             </>
           )}
@@ -179,7 +66,7 @@ const selectStoreImage = (store: string) => {
 type events = RouterOutputs["events"]["getFutureEvents"][number];
 const EventCard = (props: events) => {
   return (
-    <div className="items-center rounded-lg bg-gray-50 shadow dark:border-gray-700 dark:bg-gray-800 sm:flex">
+    <div className="items-center rounded-lg bg-slate-50 shadow dark:border-slate-700 dark:bg-slate-800 sm:flex">
       <div className="shrink-0">
         <a
           target="_blank"
@@ -196,13 +83,13 @@ const EventCard = (props: events) => {
         </a>
       </div>
       <div className="p-5">
-        <h3 className="text-xl font-bold tracking-tight text-gray-900 dark:text-white">
+        <h3 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">
           {props.name}
         </h3>
-        <span className="text-gray-500 dark:text-gray-400">
+        <span className="text-slate-500 dark:text-slate-400">
           {props.organizer}
         </span>
-        <div className="-m-1 flex items-center text-gray-500 dark:text-gray-400">
+        <div className="-m-1 flex items-center text-slate-500 dark:text-slate-400">
           <svg
             className="h-4 w-4"
             aria-hidden="true"
@@ -220,11 +107,11 @@ const EventCard = (props: events) => {
           </svg>
           <span>{props.price !== 0 ? props.price : "Gratis"}</span>
         </div>
-        <p className="mb-2 mt-3 font-light text-gray-500 dark:text-gray-400">
+        <p className="mb-2 mt-3 font-light text-slate-500 dark:text-slate-400">
           {props.description}
         </p>
         <div className="mb-4 flex gap-4">
-          <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
+          <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400">
             <svg
               className="h-4 w-4"
               aria-hidden="true"
@@ -238,7 +125,7 @@ const EventCard = (props: events) => {
               {dayjs(props.startDate).format("D [de] MMMM")}
             </span>
           </div>
-          <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
+          <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400">
             <svg
               className="h-4 w-4"
               aria-hidden="true"
@@ -259,7 +146,7 @@ const EventCard = (props: events) => {
               href={props.fbLink ? props.fbLink : ""}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-gray-500 hover:text-gray-900 dark:hover:text-white"
+              className="text-slate-500 hover:text-slate-900 dark:hover:text-white"
             >
               <svg
                 className="h-6 w-6"
@@ -280,7 +167,7 @@ const EventCard = (props: events) => {
               href={props.location!}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-gray-500 hover:text-gray-900 dark:hover:text-white"
+              className="text-slate-500 hover:text-slate-900 dark:hover:text-white"
             >
               <svg
                 className="h-5 w-5"
@@ -301,30 +188,6 @@ const EventCard = (props: events) => {
 
 export default function Home() {
   const { data: eventsData } = api.events.getFutureEvents.useQuery();
-  const { mutate, isLoading } = api.events.create.useMutation({
-    onSuccess: () => {
-      console.log("Evento creado");
-    },
-    onError: (error) => {
-      console.log(error);
-    },
-  });
-
-  const createEvent = () => {
-    const currentDate = new Date();
-    const oneHourInMilliseconds = 60 * 60 * 1000;
-    const eventParams = {
-      name: "Evento de prueba",
-      description: "Este es un evento de prueba",
-      organizer: "whimsicott",
-      location: "https://www.google.com",
-      startDate: new Date(currentDate.getTime() + oneHourInMilliseconds),
-      fbLink: "https://www.google.com",
-      price: 0,
-    };
-
-    mutate(eventParams);
-  };
 
   return (
     <>
@@ -333,17 +196,14 @@ export default function Home() {
         <meta name="description" content="Pokemon TCG Chihuahua" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main className="min-h-screen overflow-y-auto bg-white dark:bg-gray-900">
+      <main className="min-h-screen overflow-y-auto bg-white dark:bg-slate-900">
         <Navbar />
         <div className="mx-auto my-2 max-w-screen-xl px-4 py-8 lg:px-6 lg:py-16 ">
-          <button onClick={createEvent} className="text-white">
-            CREAR EVENTO
-          </button>
           <div className="mx-auto mb-8 max-w-screen-sm text-center lg:mb-16">
-            <h2 className="mb-4 text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white">
+            <h2 className="mb-4 text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white">
               Eventos TCG Pokémon Chihuahua
             </h2>
-            <p className="font-light text-gray-500 dark:text-gray-400 sm:text-xl lg:mb-16">
+            <p className="font-light text-slate-500 dark:text-slate-400 sm:text-xl lg:mb-16">
               Estos son todos los eventos para este més de{" "}
               {dayjs().format("MMMM")}
             </p>
@@ -357,7 +217,7 @@ export default function Home() {
               );
             })}
 
-            {/* <div className="items-center rounded-lg bg-gray-50 shadow dark:border-gray-700 dark:bg-gray-800 sm:flex">
+            {/* <div className="items-center rounded-lg bg-slate-50 shadow dark:border-slate-700 dark:bg-slate-800 sm:flex">
               <a href="#">
                 <img
                   className="w-full rounded-lg sm:rounded-none sm:rounded-l-lg"
@@ -366,11 +226,11 @@ export default function Home() {
                 />
               </a>
               <div className="p-5">
-                <h3 className="text-xl font-bold tracking-tight text-gray-900 dark:text-white">
+                <h3 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">
                   <a href="#">Jese Leos</a>
                 </h3>
-                <span className="text-gray-500 dark:text-gray-400">CTO</span>
-                <p className="mb-4 mt-3 font-light text-gray-500 dark:text-gray-400">
+                <span className="text-slate-500 dark:text-slate-400">CTO</span>
+                <p className="mb-4 mt-3 font-light text-slate-500 dark:text-slate-400">
                   Jese drives the technical strategy of the flowbite platform
                   and brand.
                 </p>
@@ -378,7 +238,7 @@ export default function Home() {
                   <li>
                     <a
                       href="#"
-                      className="text-gray-500 hover:text-gray-900 dark:hover:text-white"
+                      className="text-slate-500 hover:text-slate-900 dark:hover:text-white"
                     >
                       <svg
                         className="h-5 w-5"
@@ -397,7 +257,7 @@ export default function Home() {
                   <li>
                     <a
                       href="#"
-                      className="text-gray-500 hover:text-gray-900 dark:hover:text-white"
+                      className="text-slate-500 hover:text-slate-900 dark:hover:text-white"
                     >
                       <svg
                         className="h-5 w-5"
@@ -412,7 +272,7 @@ export default function Home() {
                   <li>
                     <a
                       href="#"
-                      className="text-gray-500 hover:text-gray-900 dark:hover:text-white"
+                      className="text-slate-500 hover:text-slate-900 dark:hover:text-white"
                     >
                       <svg
                         className="h-5 w-5"
@@ -431,7 +291,7 @@ export default function Home() {
                   <li>
                     <a
                       href="#"
-                      className="text-gray-500 hover:text-gray-900 dark:hover:text-white"
+                      className="text-slate-500 hover:text-slate-900 dark:hover:text-white"
                     >
                       <svg
                         className="h-5 w-5"
@@ -450,7 +310,7 @@ export default function Home() {
                 </ul>
               </div>
             </div>
-            <div className="items-center rounded-lg bg-gray-50 shadow dark:border-gray-700 dark:bg-gray-800 sm:flex">
+            <div className="items-center rounded-lg bg-slate-50 shadow dark:border-slate-700 dark:bg-slate-800 sm:flex">
               <a href="#">
                 <img
                   className="w-full rounded-lg sm:rounded-none sm:rounded-l-lg"
@@ -459,13 +319,13 @@ export default function Home() {
                 />
               </a>
               <div className="p-5">
-                <h3 className="text-xl font-bold tracking-tight text-gray-900 dark:text-white">
+                <h3 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">
                   <a href="#">Michael Gough</a>
                 </h3>
-                <span className="text-gray-500 dark:text-gray-400">
+                <span className="text-slate-500 dark:text-slate-400">
                   Senior Front-end Developer
                 </span>
-                <p className="mb-4 mt-3 font-light text-gray-500 dark:text-gray-400">
+                <p className="mb-4 mt-3 font-light text-slate-500 dark:text-slate-400">
                   Michael drives the technical strategy of the flowbite platform
                   and brand.
                 </p>
@@ -473,7 +333,7 @@ export default function Home() {
                   <li>
                     <a
                       href="#"
-                      className="text-gray-500 hover:text-gray-900 dark:hover:text-white"
+                      className="text-slate-500 hover:text-slate-900 dark:hover:text-white"
                     >
                       <svg
                         className="h-5 w-5"
@@ -492,7 +352,7 @@ export default function Home() {
                   <li>
                     <a
                       href="#"
-                      className="text-gray-500 hover:text-gray-900 dark:hover:text-white"
+                      className="text-slate-500 hover:text-slate-900 dark:hover:text-white"
                     >
                       <svg
                         className="h-5 w-5"
@@ -507,7 +367,7 @@ export default function Home() {
                   <li>
                     <a
                       href="#"
-                      className="text-gray-500 hover:text-gray-900 dark:hover:text-white"
+                      className="text-slate-500 hover:text-slate-900 dark:hover:text-white"
                     >
                       <svg
                         className="h-5 w-5"
@@ -526,7 +386,7 @@ export default function Home() {
                   <li>
                     <a
                       href="#"
-                      className="text-gray-500 hover:text-gray-900 dark:hover:text-white"
+                      className="text-slate-500 hover:text-slate-900 dark:hover:text-white"
                     >
                       <svg
                         className="h-5 w-5"
@@ -545,7 +405,7 @@ export default function Home() {
                 </ul>
               </div>
             </div>
-            <div className="items-center rounded-lg bg-gray-50 shadow dark:border-gray-700 dark:bg-gray-800 sm:flex">
+            <div className="items-center rounded-lg bg-slate-50 shadow dark:border-slate-700 dark:bg-slate-800 sm:flex">
               <a href="#">
                 <img
                   className="w-full rounded-lg sm:rounded-none sm:rounded-l-lg"
@@ -554,13 +414,13 @@ export default function Home() {
                 />
               </a>
               <div className="p-5">
-                <h3 className="text-xl font-bold tracking-tight text-gray-900 dark:text-white">
+                <h3 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">
                   <a href="#">Lana Byrd</a>
                 </h3>
-                <span className="text-gray-500 dark:text-gray-400">
+                <span className="text-slate-500 dark:text-slate-400">
                   Marketing & Sale
                 </span>
-                <p className="mb-4 mt-3 font-light text-gray-500 dark:text-gray-400">
+                <p className="mb-4 mt-3 font-light text-slate-500 dark:text-slate-400">
                   Lana drives the technical strategy of the flowbite platform
                   and brand.
                 </p>
@@ -568,7 +428,7 @@ export default function Home() {
                   <li>
                     <a
                       href="#"
-                      className="text-gray-500 hover:text-gray-900 dark:hover:text-white"
+                      className="text-slate-500 hover:text-slate-900 dark:hover:text-white"
                     >
                       <svg
                         className="h-5 w-5"
@@ -587,7 +447,7 @@ export default function Home() {
                   <li>
                     <a
                       href="#"
-                      className="text-gray-500 hover:text-gray-900 dark:hover:text-white"
+                      className="text-slate-500 hover:text-slate-900 dark:hover:text-white"
                     >
                       <svg
                         className="h-5 w-5"
@@ -602,7 +462,7 @@ export default function Home() {
                   <li>
                     <a
                       href="#"
-                      className="text-gray-500 hover:text-gray-900 dark:hover:text-white"
+                      className="text-slate-500 hover:text-slate-900 dark:hover:text-white"
                     >
                       <svg
                         className="h-5 w-5"
@@ -621,7 +481,7 @@ export default function Home() {
                   <li>
                     <a
                       href="#"
-                      className="text-gray-500 hover:text-gray-900 dark:hover:text-white"
+                      className="text-slate-500 hover:text-slate-900 dark:hover:text-white"
                     >
                       <svg
                         className="h-5 w-5"
