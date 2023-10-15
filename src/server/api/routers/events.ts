@@ -7,7 +7,7 @@ import {
   publicProcedure,
 } from "~/server/api/trpc";
 import { events } from "~/server/db/schema";
-import { UserPublicMetadata, UserUnsafeMetadata } from "~/server/api/auth";
+import type { UserPublicMetadata, UserUnsafeMetadata } from "~/server/api/auth";
 
 export const eventsRouter = createTRPCRouter({
   getFutureEvents: publicProcedure.query(({ ctx }) => {
