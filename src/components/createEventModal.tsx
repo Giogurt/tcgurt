@@ -9,6 +9,7 @@ import {
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -23,9 +24,10 @@ import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { cn } from "~/lib/utils";
 import { format } from "date-fns";
 import { Calendar } from "./ui/calendar";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, Loader2 } from "lucide-react";
 import { api } from "~/utils/api";
 import es from "date-fns/locale/es";
+import { useState } from "react";
 
 const formSchema = z.object({
   name: z.string(),
@@ -33,20 +35,30 @@ const formSchema = z.object({
   startDate: z.date().min(new Date()),
   startTime: z.string(),
   price: z.string().regex(/^[0-9]+/),
+  location: z.string().url().optional(),
 });
 
-export const CreateEventModal = () => {
+export interface eventModalProps {
+  triggerToast: (success: boolean) => void;
+  userLocation: string;
+}
+export const CreateEventModal = (props: eventModalProps) => {
   const { mutate, isLoading } = api.events.create.useMutation({
     onSuccess: () => {
-      console.log("Evento creado");
+      setOpen(false);
+      props.triggerToast(true);
     },
     onError: (error) => {
       console.log(error);
+      props.triggerToast(false);
     },
   });
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
+    defaultValues: {
+      location: props.userLocation ? props.userLocation : "",
+    },
   });
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
@@ -65,8 +77,10 @@ export const CreateEventModal = () => {
     mutate(eventParams);
   };
 
+  const [open, setOpen] = useState(false);
+
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger className="rounded-lg bg-green-700 px-4 py-2 text-center text-sm font-medium text-white hover:bg-green-800 focus:outline-none focus:ring-4 focus:ring-green-300 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800">
         Crear evento
       </DialogTrigger>
@@ -98,6 +112,25 @@ export const CreateEventModal = () => {
                   <FormControl>
                     <Input placeholder="Liga Pokémon divertida" {...field} />
                   </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="location"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Ubicación</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="https://maps.app.goo.gl/2vdFYc7U1PgkQL9y7"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    Añade un link de google maps aquí
+                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -185,7 +218,12 @@ export const CreateEventModal = () => {
             />
             <DialogFooter>
               <div>
-                <Button type="submit">Crear evento</Button>
+                <Button disabled={isLoading} type="submit">
+                  {!!isLoading && (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  )}
+                  Crear evento
+                </Button>
               </div>
             </DialogFooter>
           </form>

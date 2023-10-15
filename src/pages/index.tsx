@@ -5,11 +5,29 @@ import "dayjs/locale/es-mx";
 import { RouterOutputs, api } from "~/utils/api";
 import { SignInButton, UserButton, useUser } from "@clerk/nextjs";
 import { CreateEventModal } from "~/components/createEventModal";
+import { useToast } from "~/components/ui/use-toast";
+import { Toaster } from "~/components/ui/toaster";
 
 dayjs.locale("es-mx");
 
 const Navbar = () => {
+  const { toast } = useToast();
   const user = useUser();
+
+  const triggerToast = (success: boolean) => {
+    if (!success) {
+      toast({
+        variant: "destructive",
+        title: "Algo salió mal",
+        description: "Hubo un problema al crear el evento. Inténtalo más tarde",
+      });
+      return;
+    }
+    toast({
+      description: "¡El evento ha sido creado!",
+    });
+  };
+
   return (
     <nav className="fixed left-0 top-0 z-20 w-full border-b border-slate-200 bg-white dark:border-slate-600 dark:bg-slate-900">
       <div className="mx-auto flex max-w-screen-xl flex-wrap items-center justify-between p-4">
@@ -26,12 +44,15 @@ const Navbar = () => {
           </span>
         </a>
         <div className="flex gap-x-4">
-          {!!user && (
-            <>
-              <CreateEventModal />
-              <UserButton />
-            </>
+          {!!user && !!user.user?.publicMetadata.isOrganizer && (
+            <CreateEventModal
+              {...{
+                triggerToast: triggerToast,
+                userLocation: user.user.unsafeMetadata.location as string,
+              }}
+            />
           )}
+          {!!user && <UserButton />}
           {!user && (
             <SignInButton mode="modal">
               <button
@@ -198,6 +219,7 @@ export default function Home() {
       </Head>
       <main className="min-h-screen overflow-y-auto bg-white dark:bg-slate-900">
         <Navbar />
+        <Toaster />
         <div className="mx-auto my-2 max-w-screen-xl px-4 py-8 lg:px-6 lg:py-16 ">
           <div className="mx-auto mb-8 max-w-screen-sm text-center lg:mb-16">
             <h2 className="mb-4 text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white">

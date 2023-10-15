@@ -7,7 +7,7 @@ import {
   publicProcedure,
 } from "~/server/api/trpc";
 import { events } from "~/server/db/schema";
-import { UserUnsafeMetadata } from "~/server/api/auth";
+import { UserPublicMetadata, UserUnsafeMetadata } from "~/server/api/auth";
 
 export const eventsRouter = createTRPCRouter({
   getFutureEvents: publicProcedure.query(({ ctx }) => {
@@ -32,8 +32,17 @@ export const eventsRouter = createTRPCRouter({
       const user = await clerkClient.users.getUser(ctx.userId);
 
       const userMetadata = user.unsafeMetadata as UserUnsafeMetadata;
+      const UserSafeMetadata = user.publicMetadata as UserPublicMetadata;
+
+      if (!UserSafeMetadata.isOrganizer) {
+        throw new Error("Not authorized");
+      }
 
       const eventFields = { ...input, ...userMetadata };
+
+      if (input.location) {
+        eventFields.location = input.location;
+      }
 
       return ctx.db.insert(events).values(eventFields);
     }),

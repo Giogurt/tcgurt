@@ -3,3 +3,7 @@ export type UserUnsafeMetadata = {
   location: string;
   fbLink: string;
 };
+
+export type UserPublicMetadata = {
+  isOrganizer: boolean;
+};
