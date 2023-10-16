@@ -14,7 +14,6 @@ dayjs.locale("es-mx");
 const Navbar = () => {
   const { toast } = useToast();
   const { user } = useUser();
-  console.log(user);
 
   const triggerToast = (success: boolean) => {
     if (!success) {
@@ -33,7 +32,7 @@ const Navbar = () => {
   return (
     <nav className="fixed left-0 top-0 z-20 w-full border-b border-slate-200 bg-white dark:border-slate-600 dark:bg-slate-900">
       <div className="mx-auto flex max-w-screen-xl flex-wrap items-center justify-between p-4">
-        <a href="https://flowbite.com/" className="flex items-center">
+        <a href="/" className="flex items-center">
           <Image
             src="/whimsicott.png"
             width={40}
@@ -54,7 +53,11 @@ const Navbar = () => {
               }}
             />
           )}
-          {!!user && <UserButton />}
+          {!!user && (
+            <div className="pt-[3px]">
+              <UserButton afterSignOutUrl="/" />
+            </div>
+          )}
           {!user && (
             <SignInButton mode="modal">
               <button
@@ -222,7 +225,7 @@ export default function Home() {
       <main className="min-h-screen overflow-y-auto bg-white dark:bg-slate-900">
         <Navbar />
         <Toaster />
-        <div className="mx-auto my-2 max-w-screen-xl px-4 py-8 lg:px-6 lg:py-16 ">
+        <div className="mx-auto my-10 max-w-screen-xl px-4 py-8 lg:px-6 lg:py-16 ">
           <div className="mx-auto mb-8 max-w-screen-sm text-center lg:mb-16">
             <h2 className="mb-4 text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white">
               Eventos TCG Pokémon Chihuahua
