@@ -32,7 +32,7 @@ const Navbar = () => {
   return (
     <nav className="fixed left-0 top-0 z-20 w-full border-b border-slate-200 bg-white dark:border-slate-600 dark:bg-slate-900">
       <div className="mx-auto flex max-w-screen-xl flex-wrap items-center justify-between p-4">
-        <a href="/" className="flex items-center">
+        <a href="#" className="flex items-center">
           <Image
             src="/whimsicott.png"
             width={40}
