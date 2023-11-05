@@ -1,21 +1,67 @@
 import { clerkClient } from "@clerk/nextjs";
-import { asc, eq, gte } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { z } from "zod";
 import {
   createTRPCRouter,
   privateProcedure,
   publicProcedure,
 } from "~/server/api/trpc";
-import { cardLists, events } from "~/server/db/schema";
+import { cardLists, cards, events } from "~/server/db/schema";
 import type { UserPublicMetadata, UserUnsafeMetadata } from "~/server/api/auth";
+import { TRPCError } from "@trpc/server";
 
 export const cardListsRouter = createTRPCRouter({
   findById: publicProcedure
-    .input(z.object({ wishlistId: z.number().nonnegative() }))
+    .input(z.object({ cardListId: z.number().nonnegative() }))
     .query(({ ctx, input }) => {
       return ctx.db.query.cardLists.findFirst({
         with: { cards: true },
-        where: eq(cardLists.id, input.wishlistId),
+        where: eq(cardLists.id, input.cardListId),
+      });
+    }),
+  addCard: privateProcedure
+    .input(
+      z.object({
+        cardId: z.string().trim(),
+        cardListId: z.number().nonnegative(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const user = await clerkClient.users.getUser(ctx.userId);
+
+      if (!user) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "The user is not logged in",
+        });
+      }
+
+      const cardList = await ctx.db.query.cardLists.findFirst({
+        with: { cards: true },
+        where: eq(cardLists.id, input.cardListId),
+      });
+
+      if (user.id !== cardList?.userId) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "The user is not authorized to add cards to this list",
+        });
+      }
+
+      const cardExists = cardList.cards.find((card) => {
+        card.apiId === input.cardId;
+      });
+      if (cardExists) {
+        return ctx.db
+          .update(cards)
+          .set({ quantity: cardExists.quantity + 1 })
+          .where(eq(cards.id, cardExists.id));
+      }
+
+      return ctx.db.insert(cards).values({
+        apiId: input.cardId,
+        quantity: 1,
+        cardListId: input.cardListId,
       });
     }),
   create: privateProcedure

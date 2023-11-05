@@ -6,7 +6,6 @@ import {
   bigint,
   boolean,
   datetime,
-  index,
   int,
   mysqlTableCreator,
   varchar,

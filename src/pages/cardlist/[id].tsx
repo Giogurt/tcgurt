@@ -1,39 +1,17 @@
 import Head from "next/head";
 import Image from "next/image";
-import "dayjs/locale/es-mx";
-import { RouterOutputs, api } from "~/utils/api";
+import { type RouterOutputs, api } from "~/utils/api";
 import { useUser } from "@clerk/nextjs";
 import { Navbar } from "~/components/navbar";
 import { Input } from "~/components/ui/input";
 import { Button } from "~/components/ui/button";
-import { FC, useState } from "react";
+import { type FC, useState } from "react";
 import { Loader2, Minus, Plus } from "lucide-react";
-import { useRouter } from "next/router";
-import { GetStaticProps, InferGetStaticPropsType, NextPage } from "next";
+import type { GetStaticProps } from "next";
 import { helpers } from "~/server/helpers/ssHelper";
+import { toast } from "~/components/ui/use-toast";
 
 type Card = RouterOutputs["cards"]["getCards"][number];
-const SearchCard = (cardInfo: Card) => {
-  return (
-    // <div className="hover:scale-150">
-    <div className="group relative flex items-end justify-center">
-      <Image
-        className="object-cover"
-        alt={cardInfo.name}
-        src={cardInfo.images.large}
-        width={150}
-        height={200}
-      />
-      <Button
-        variant="green"
-        size="icon"
-        className="absolute m-2 hidden rounded-full bg-green-700 group-hover:flex"
-      >
-        <Plus className="h-6 w-6" />
-      </Button>
-    </div>
-  );
-};
 
 const DeckCard = (cardInfo: Card) => {
   return (
@@ -115,6 +93,22 @@ const SearchBar: FC<SearchBarProps> = ({ onSearch, loading }) => {
   );
 };
 
+type Cards = RouterOutputs["cards"]["getCards"];
+const CardListView = (cards: Cards) => {
+  <div className="mx-auto mb-2 text-center lg:mb-4">
+    <h3 className="mb-2 text-2xl tracking-tight lg:mb-4">Cartas en tu lista</h3>
+    <div className="flex flex-wrap justify-center gap-3">
+      {cards?.map((card, index) => {
+        return (
+          <div key={index}>
+            <DeckCard {...card} />
+          </div>
+        );
+      })}
+    </div>
+  </div>;
+};
+
 export const getStaticProps: GetStaticProps = async (context) => {
   const helper = helpers;
 
@@ -122,13 +116,13 @@ export const getStaticProps: GetStaticProps = async (context) => {
 
   if (typeof id !== "string") throw new Error("No id");
 
-  const wishlistId = Number(id);
-  await helper.cardLists.findById.prefetch({ wishlistId });
+  const cardListId = Number(id);
+  await helper.cardLists.findById.prefetch({ cardListId });
 
   return {
     props: {
       trpcState: helper.dehydrate(),
-      wishlistId,
+      cardListId,
     },
   };
 };
@@ -137,12 +131,11 @@ export const getStaticPaths = () => {
   return { paths: [], fallback: "blocking" };
 };
 
-export default function CardListPage(
-  props: InferGetStaticPropsType<typeof getStaticProps>,
-) {
-  const { wishlistId } = props;
+export default function CardListPage(props: { cardListId: number }) {
+  const { cardListId } = props;
 
-  const router = useRouter();
+  const { user } = useUser();
+
   const [cardSearchData, setCardSearchData] = useState({
     name: "",
     onlyStandard: true,
@@ -150,7 +143,7 @@ export default function CardListPage(
 
   // Queries
   const { data: cardListData } = api.cardLists.findById.useQuery({
-    wishlistId,
+    cardListId,
   });
 
   const {
@@ -161,12 +154,54 @@ export default function CardListPage(
     enabled: cardSearchData.name != "",
   });
 
-  // Filter card data in server
-  console.log(cardsData);
+  // Mutations
+  const { mutate: addCardMutation, isLoading: addCardLoading } =
+    api.cardLists.addCard.useMutation({
+      onSuccess: () => {
+        console.log("success");
+      },
+      onError: (error) => {
+        console.log(error);
+        toast({ variant: "destructive", title: "Error al agregar carta" });
+      },
+    });
+
+  // End QM
+
+  if (!cardListData) return <div>404</div>;
 
   const searchCard = (cardName: string) => {
     setCardSearchData({ name: cardName, onlyStandard: true });
-    searchRefetch();
+    void searchRefetch();
+  };
+
+  const SearchCard = (cardInfo: Card) => {
+    return (
+      // <div className="hover:scale-150">
+      <div className="group relative flex items-end justify-center">
+        <Image
+          className="object-cover"
+          alt={cardInfo.name}
+          src={cardInfo.images.large}
+          width={150}
+          height={200}
+        />
+        <Button
+          variant="green"
+          size="icon"
+          disabled={addCardLoading}
+          onClick={() => {
+            addCardMutation({
+              cardId: cardInfo.id,
+              cardListId: cardListData.id,
+            });
+          }}
+          className="absolute m-2 hidden rounded-full bg-green-700 group-hover:flex"
+        >
+          <Plus className="h-6 w-6" />
+        </Button>
+      </div>
+    );
   };
 
   return (
@@ -181,7 +216,7 @@ export default function CardListPage(
         <div className="mx-auto my-10 max-w-screen-xl px-4 py-8 lg:px-6 lg:py-16 ">
           <div className="mx-auto mb-10 max-w-screen-sm text-center lg:mb-16">
             <h2 className="mb-4 text-4xl font-extrabold tracking-tight">
-              {cardListData?.name}
+              {cardListData.name}
             </h2>
           </div>
 

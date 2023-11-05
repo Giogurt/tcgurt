@@ -8,6 +8,7 @@ import {
 } from "~/server/api/trpc";
 import { events } from "~/server/db/schema";
 import type { UserPublicMetadata, UserUnsafeMetadata } from "~/server/api/auth";
+import { TRPCError } from "@trpc/server";
 
 export const eventsRouter = createTRPCRouter({
   getFutureEvents: publicProcedure.query(({ ctx }) => {
@@ -35,7 +36,10 @@ export const eventsRouter = createTRPCRouter({
       const UserSafeMetadata = user.publicMetadata as UserPublicMetadata;
 
       if (!UserSafeMetadata.isOrganizer) {
-        throw new Error("Not authorized");
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "The user is not an organizer",
+        });
       }
 
       const eventFields = {
