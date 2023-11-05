@@ -4,75 +4,9 @@ import dayjs from "dayjs";
 import "dayjs/locale/es-mx";
 import { api } from "~/utils/api";
 import type { RouterOutputs } from "~/utils/api";
-import { SignInButton, UserButton, useUser } from "@clerk/nextjs";
-import { CreateEventModal } from "~/components/createEventModal";
-import { useToast } from "~/components/ui/use-toast";
-import { Toaster } from "~/components/ui/toaster";
+import { Navbar } from "~/components/navbar";
 
 dayjs.locale("es-mx");
-
-const Navbar = () => {
-  const { toast } = useToast();
-  const { user } = useUser();
-
-  const triggerToast = (success: boolean) => {
-    if (!success) {
-      toast({
-        variant: "destructive",
-        title: "Algo salió mal",
-        description: "Hubo un problema al crear el evento. Inténtalo más tarde",
-      });
-      return;
-    }
-    toast({
-      description: "¡El evento ha sido creado!",
-    });
-  };
-
-  return (
-    <nav className="fixed left-0 top-0 z-20 w-full border-b border-slate-200 bg-white dark:border-slate-600 dark:bg-slate-900">
-      <div className="mx-auto flex max-w-screen-xl flex-wrap items-center justify-between p-4">
-        <a href="#" className="flex items-center">
-          <Image
-            src="/whimsicott.png"
-            width={40}
-            height={40}
-            className="mr-3"
-            alt="Whimsicott"
-          />
-          <span className="self-center whitespace-nowrap text-2xl font-semibold dark:text-white">
-            TCGURT
-          </span>
-        </a>
-        <div className="flex gap-x-4">
-          {!!user && !!user?.publicMetadata.isOrganizer && (
-            <CreateEventModal
-              {...{
-                triggerToast: triggerToast,
-                userLocation: user.unsafeMetadata.location as string,
-              }}
-            />
-          )}
-          {!!user && (
-            <div className="pt-[3px]">
-              <UserButton afterSignOutUrl="/" />
-            </div>
-          )}
-          {!user && (
-            <SignInButton mode="modal">
-              <button
-                type="button"
-                className="rounded-lg bg-green-700 px-4 py-2 text-center text-sm font-medium text-white hover:bg-green-800 focus:outline-none focus:ring-4 focus:ring-green-300 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
-              >
-                Login
-              </button>
-            </SignInButton>
-          )}
-        </div>
-      </div>
-    </nav>
-  );
-};
 
 const selectStoreImage = (store: string) => {
   switch (store) {
@@ -224,15 +158,13 @@ export default function Home() {
       </Head>
       <main className="min-h-screen overflow-y-auto bg-white dark:bg-slate-900">
         <Navbar />
-        <Toaster />
         <div className="mx-auto my-10 max-w-screen-xl px-4 py-8 lg:px-6 lg:py-16 ">
           <div className="mx-auto mb-8 max-w-screen-sm text-center lg:mb-16">
             <h2 className="mb-4 text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white">
               Eventos TCG Pokémon Chihuahua
             </h2>
             <p className="font-light text-slate-500 dark:text-slate-400 sm:text-xl lg:mb-16">
-              Estos son todos los eventos para este més de{" "}
-              {dayjs().format("MMMM")}
+              Estos son todos los eventos futuros en Chihuahua
             </p>
           </div>
           <div className="mb-6 grid gap-8 lg:mb-16">

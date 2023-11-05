@@ -8,6 +8,8 @@ export default authMiddleware({
     "/",
     "/api/trpc/events.getFutureEvents",
     "/api/trpc/events.create",
+    "/api/trpc/(.*)",
+    "/cardlist/(.*)",
   ],
 });
 

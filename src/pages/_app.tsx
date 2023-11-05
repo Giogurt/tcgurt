@@ -7,6 +7,7 @@ import { ClerkProvider } from "@clerk/nextjs";
 import { dark } from "@clerk/themes";
 import { esES } from "@clerk/localizations";
 import { ThemeProvider } from "~/components/theme-provider";
+import { Toaster } from "~/components/ui/toaster";
 
 const MyApp: AppType = ({ Component, pageProps }) => {
   return (
@@ -22,6 +23,7 @@ const MyApp: AppType = ({ Component, pageProps }) => {
         disableTransitionOnChange
       >
         <Component {...pageProps} />
+        <Toaster />
       </ThemeProvider>
     </ClerkProvider>
   );

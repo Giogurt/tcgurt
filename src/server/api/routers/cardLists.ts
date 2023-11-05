@@ -1,21 +1,23 @@
 import { clerkClient } from "@clerk/nextjs";
-import { asc, gte } from "drizzle-orm";
+import { asc, eq, gte } from "drizzle-orm";
 import { z } from "zod";
 import {
   createTRPCRouter,
   privateProcedure,
   publicProcedure,
 } from "~/server/api/trpc";
-import { events } from "~/server/db/schema";
+import { cardLists, events } from "~/server/db/schema";
 import type { UserPublicMetadata, UserUnsafeMetadata } from "~/server/api/auth";
 
-export const eventsRouter = createTRPCRouter({
-  getFutureEvents: publicProcedure.query(({ ctx }) => {
-    return ctx.db.query.events.findMany({
-      where: (events) => gte(events.startDate, new Date()),
-      orderBy: (events) => [asc(events.startDate)],
-    });
-  }),
+export const cardListsRouter = createTRPCRouter({
+  findById: publicProcedure
+    .input(z.object({ wishlistId: z.number().nonnegative() }))
+    .query(({ ctx, input }) => {
+      return ctx.db.query.cardLists.findFirst({
+        with: { cards: true },
+        where: eq(cardLists.id, input.wishlistId),
+      });
+    }),
   create: privateProcedure
     .input(
       z.object({
