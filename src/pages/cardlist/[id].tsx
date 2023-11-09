@@ -25,18 +25,23 @@ const DeckCard = (cardInfo: DeckCard) => {
         width={150}
         height={200}
       />
-      <div className="absolute hidden w-full justify-around pb-2 group-hover:flex">
+      <div className="absolute flex w-full items-center justify-around pb-2">
         <Button
           variant="green"
           size="icon"
-          className="rounded-full bg-green-700 "
+          className="hidden rounded-full bg-green-700 group-hover:flex "
         >
           <Minus className="h-6 w-6" />
         </Button>
+        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-green-700">
+          <p className="text-center text-lg font-bold text-white">
+            {cardInfo.quantity}
+          </p>
+        </div>
         <Button
           variant="green"
           size="icon"
-          className="rounded-full bg-green-700"
+          className="hidden rounded-full bg-green-700 group-hover:flex"
         >
           <Plus className="h-6 w-6" />
         </Button>

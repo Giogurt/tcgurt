@@ -60,8 +60,9 @@ export const cardListsRouter = createTRPCRouter({
       }
 
       const cardExists = cardList.cards.find((card) => {
-        card.apiId === input.cardId;
+        return card.apiId === input.cardId;
       });
+
       if (cardExists) {
         return ctx.db
           .update(cards)
