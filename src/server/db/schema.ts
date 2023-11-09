@@ -46,6 +46,8 @@ export const cards = mysqlTable("cards", {
   cardListId: int("card_list_id"),
   apiId: varchar("api_id", { length: 50 }).notNull(),
   quantity: int("quantity").notNull(),
+  imageUrl: varchar("image_url", { length: 256 }),
+  name: varchar("name", { length: 100 }),
 });
 
 export const cardsRelations = relations(cards, ({ one }) => ({

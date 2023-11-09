@@ -13,17 +13,28 @@ import { TRPCError } from "@trpc/server";
 export const cardListsRouter = createTRPCRouter({
   findById: publicProcedure
     .input(z.object({ cardListId: z.number().nonnegative() }))
-    .query(({ ctx, input }) => {
-      return ctx.db.query.cardLists.findFirst({
+    .query(async ({ ctx, input }) => {
+      const cardList = await ctx.db.query.cardLists.findFirst({
         with: { cards: true },
         where: eq(cardLists.id, input.cardListId),
       });
+
+      if (!cardList) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "The card list was not found",
+        });
+      }
+
+      return cardList;
     }),
   addCard: privateProcedure
     .input(
       z.object({
         cardId: z.string().trim(),
         cardListId: z.number().nonnegative(),
+        imageUrl: z.string().url().trim(),
+        name: z.string().trim(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -62,6 +73,8 @@ export const cardListsRouter = createTRPCRouter({
         apiId: input.cardId,
         quantity: 1,
         cardListId: input.cardListId,
+        imageUrl: input.imageUrl,
+        name: input.name,
       });
     }),
   create: privateProcedure

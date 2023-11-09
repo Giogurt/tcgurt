@@ -13,14 +13,15 @@ import { toast } from "~/components/ui/use-toast";
 
 type Card = RouterOutputs["cards"]["getCards"][number];
 
-const DeckCard = (cardInfo: Card) => {
+type DeckCard = RouterOutputs["cardLists"]["findById"]["cards"][number];
+const DeckCard = (cardInfo: DeckCard) => {
   return (
     // <div className="hover:scale-150">
     <div className="group relative flex items-end justify-center">
       <Image
         className="object-cover"
-        alt={cardInfo.name}
-        src={cardInfo.images.large}
+        alt={cardInfo.name ? cardInfo.name : cardInfo.apiId}
+        src={cardInfo.imageUrl ? cardInfo.imageUrl : ""}
         width={150}
         height={200}
       />
@@ -93,21 +94,21 @@ const SearchBar: FC<SearchBarProps> = ({ onSearch, loading }) => {
   );
 };
 
-type Cards = RouterOutputs["cards"]["getCards"];
-const CardListView = (cards: Cards) => {
-  <div className="mx-auto mb-2 text-center lg:mb-4">
-    <h3 className="mb-2 text-2xl tracking-tight lg:mb-4">Cartas en tu lista</h3>
-    <div className="flex flex-wrap justify-center gap-3">
-      {cards?.map((card, index) => {
-        return (
-          <div key={index}>
-            <DeckCard {...card} />
-          </div>
-        );
-      })}
-    </div>
-  </div>;
-};
+// type Cards = RouterOutputs["cards"]["getCards"];
+// const CardListView = (cards: Cards) => {
+//   <div className="mx-auto mb-2 text-center lg:mb-4">
+//     <h3 className="mb-2 text-2xl tracking-tight lg:mb-4">Cartas en tu lista</h3>
+//     <div className="flex flex-wrap justify-center gap-3">
+//       {cards?.map((card, index) => {
+//         return (
+//           <div key={index}>
+//             <DeckCard {...card} />
+//           </div>
+//         );
+//       })}
+//     </div>
+//   </div>;
+// };
 
 export const getStaticProps: GetStaticProps = async (context) => {
   const helper = helpers;
@@ -141,6 +142,8 @@ export default function CardListPage(props: { cardListId: number }) {
     onlyStandard: true,
   });
 
+  const ctx = api.useContext();
+
   // Queries
   const { data: cardListData } = api.cardLists.findById.useQuery({
     cardListId,
@@ -158,6 +161,7 @@ export default function CardListPage(props: { cardListId: number }) {
   const { mutate: addCardMutation, isLoading: addCardLoading } =
     api.cardLists.addCard.useMutation({
       onSuccess: () => {
+        void ctx.cardLists.findById.invalidate();
         console.log("success");
       },
       onError: (error) => {
@@ -194,6 +198,8 @@ export default function CardListPage(props: { cardListId: number }) {
             addCardMutation({
               cardId: cardInfo.id,
               cardListId: cardListData.id,
+              imageUrl: cardInfo.images.large,
+              name: cardInfo.name,
             });
           }}
           className="absolute m-2 hidden rounded-full bg-green-700 group-hover:flex"
@@ -243,7 +249,7 @@ export default function CardListPage(props: { cardListId: number }) {
               Cartas en tu lista
             </h3>
             <div className="flex flex-wrap justify-center gap-3">
-              {cardsData?.map((card, index) => {
+              {cardListData.cards.map((card, index) => {
                 return (
                   <div key={index}>
                     <DeckCard {...card} />
